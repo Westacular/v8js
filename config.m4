@@ -3,7 +3,7 @@ PHP_ARG_WITH(v8js, for V8 Javascript Engine,
 
 if test "$PHP_V8JS" != "no"; then
   SEARCH_PATH="/usr/local /usr"
-  SEARCH_FOR="$PHP_LIBDIR/libv8.$SHLIB_SUFFIX_NAME"
+  SEARCH_FOR="$PHP_LIBDIR/libnode.$SHLIB_SUFFIX_NAME"
   
   if test -r $PHP_V8JS/$SEARCH_FOR; then
     case $host_os in
@@ -33,7 +33,7 @@ if test "$PHP_V8JS" != "no"; then
   fi
 
   PHP_ADD_INCLUDE($V8_DIR/include)
-  PHP_ADD_LIBRARY_WITH_PATH(v8, $V8_DIR/$PHP_LIBDIR, V8JS_SHARED_LIBADD)
+  PHP_ADD_LIBRARY_WITH_PATH(node, $V8_DIR/$PHP_LIBDIR, V8JS_SHARED_LIBADD)
   PHP_SUBST(V8JS_SHARED_LIBADD)
   PHP_REQUIRE_CXX()
 
@@ -95,20 +95,20 @@ if test "$PHP_V8JS" != "no"; then
   AC_MSG_CHECKING([for libv8_libplatform])
   AC_DEFUN([V8_CHECK_LINK], [
     save_LIBS="$LIBS"
-    LIBS="$LIBS $1 -lv8_libplatform -lv8"
+    LIBS="$LIBS $1 -lnode"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([
       #include <libplatform/libplatform.h>
     ], [ v8::platform::NewDefaultPlatform(); ])], [
       dnl libv8_libplatform.so found
       AC_MSG_RESULT(found)
-      V8JS_SHARED_LIBADD="$1 -lv8_libplatform $V8JS_SHARED_LIBADD"
+      V8JS_SHARED_LIBADD="$1 -lnode $V8JS_SHARED_LIBADD"
         $3
     ], [ $4 ])
     LIBS="$save_LIBS"
   ])
 
   V8_CHECK_LINK([], [], [], [
-    V8_CHECK_LINK([-lv8_libbase], [], [], [
+    V8_CHECK_LINK([-lnode], [], [], [
       AC_MSG_ERROR([could not find libv8_libplatform library])
     ])
   ])
