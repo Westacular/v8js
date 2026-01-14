@@ -212,7 +212,7 @@ failure:
 		return_value = v8js_propagate_exception(ctx);
 	} else if (Z_TYPE(retval) == IS_OBJECT && Z_OBJ(retval) == object) {
 		// special case: "return $this"
-		return_value = info.HolderV2();
+		return_value = info.This();
 	} else {
 		return_value = zval_to_v8js(&retval, isolate);
 	}
@@ -227,7 +227,7 @@ failure:
 /* Callback for PHP methods and functions */
 void v8js_php_callback(const v8::FunctionCallbackInfo<v8::Value>& info) /* {{{ */
 {
-	v8::Local<v8::Object> self = info.HolderV2();
+	v8::Local<v8::Object> self = info.This();
 
 	zend_object *object = reinterpret_cast<zend_object *>(self->GetAlignedPointerFromInternalField(1));
 	zend_function *method_ptr;
@@ -248,7 +248,7 @@ static void v8js_construct_callback(const v8::FunctionCallbackInfo<v8::Value>& i
 	v8::Isolate *isolate = info.GetIsolate();
 	info.GetReturnValue().Set(V8JS_UNDEFINED);
 
-	v8::Local<v8::Object> newobj = info.HolderV2();
+	v8::Local<v8::Object> newobj = info.This();
 	zval value;
 
 	if (!info.IsConstructCall()) {
@@ -466,7 +466,7 @@ static void v8js_invoke_callback(const v8::FunctionCallbackInfo<v8::Value>& info
 	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> v8_context = isolate->GetEnteredOrMicrotaskContext();
 
-	v8::Local<v8::Object> self = info.HolderV2();
+	v8::Local<v8::Object> self = info.This();
 	v8::Local<v8::Function> cb = v8::Local<v8::Function>::Cast(info.Data());
 	int argc = info.Length(), i;
 	v8::Local<v8::Value> *argv = static_cast<v8::Local<v8::Value> *>(alloca(sizeof(v8::Local<v8::Value>) * argc));
@@ -511,7 +511,7 @@ static void v8js_fake_call_impl(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::Isolate *isolate = info.GetIsolate();
 	v8::Local<v8::Context> v8_context = isolate->GetEnteredOrMicrotaskContext();
 
-	v8::Local<v8::Object> self = info.HolderV2();
+	v8::Local<v8::Object> self = info.This();
 	v8::Local<v8::Value> return_value = V8JS_NULL;
 
 	char *error;
@@ -642,7 +642,7 @@ static void v8js_fake_call_impl(const v8::FunctionCallbackInfo<v8::Value>& info)
 		new(&argv[i]) v8::Local<v8::Value>;
 		args->Get(v8_context, i).ToLocal(&argv[i]);
 	}
-	cb->Call(v8_context, info.HolderV2(), (int) argc, argv).ToLocal(&return_value);
+	cb->Call(v8_context, info.This(), (int) argc, argv).ToLocal(&return_value);
 	info.GetReturnValue().Set(return_value);
 }
 /* }}} */
